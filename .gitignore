@@ -3,6 +3,9 @@
 /.ruby-gemset
 /.ruby-version
 
+# Ignore environment configuration.
+.env
+
 # Ignore bundler config.
 /.bundle
 

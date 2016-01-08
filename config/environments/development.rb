@@ -13,8 +13,14 @@ Rails.application.configure do
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = false
 
-  # Don't care if the mailer can't send.
+  # Disable delivery of test emails.
+  config.action_mailer.delivery_method = :test
   config.action_mailer.raise_delivery_errors = false
+
+  # Enable delivery of test emails.
+  # config.action_mailer.delivery_method = :sendmail
+  # config.action_mailer.perform_deliveries = true
+  # config.action_mailer.raise_delivery_errors = true
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
