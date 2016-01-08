@@ -14,5 +14,6 @@
 .yardoc
 
 # Ignore all logfiles and tempfiles.
+.byebug_history
 /log/*.log
 /tmp
