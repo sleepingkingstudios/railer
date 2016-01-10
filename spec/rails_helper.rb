@@ -5,6 +5,7 @@ require 'spec_helper'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 require 'rspec/sleeping_king_studios/all'
+require 'rspec/sleeping_king_studios/examples/active_model/validation_examples'
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories.
