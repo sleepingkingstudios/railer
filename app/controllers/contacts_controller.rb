@@ -1,6 +1,8 @@
 # app/controllers/contacts_controller.rb
 
 class ContactsController < ApplicationController
+  include ActionView::Helpers::SanitizeHelper
+
   protect_from_forgery :with => :null_session
 
   before_action :require_contact
@@ -26,7 +28,20 @@ class ContactsController < ApplicationController
   end # method contact
 
   def contact_params
-    (params[:contact] || {}).permit(:email_address)
+    hsh = (params[:contact] || {}).permit(:email_address, :name)
+
+    unless (raw_message = params[:contact][:message]).blank?
+      script_scrubber = Loofah::Scrubber.new do |node|
+        node.remove if node.name == 'script'
+      end # scrubber
+
+      sanitized = sanitize(raw_message, :scrubber => script_scrubber)
+      sanitized = sanitize(sanitized, :tags => %w(a), :attributes => %w(href))
+
+      hsh[:message] = sanitized
+    end # unless
+
+    hsh
   end # method contact_params
 
   def deliver_contact_email

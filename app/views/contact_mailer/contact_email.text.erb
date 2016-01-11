@@ -1,4 +1,6 @@
 Sleeping King Studios
 ================================================================================
 
-<%= @contact.email_address %> sent a contact request at sleepingkingstudios.com/contact.
+<%= @contact.formatted_email_address %> sent a contact request at sleepingkingstudios.com/contact.<% unless @contact.message.blank? %>
+
+<%= @contact.message %><% end %>

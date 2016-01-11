@@ -6,7 +6,8 @@
   <body>
     <h1>Sleeping King Studios</h1>
     <p>
-      <%= @contact.email_address %> sent a contact request at <a href="sleepingkingstudios.com/contact.html">sleepingkingstudios.com/contact</a>.
-    </p>
+      <%= @contact.formatted_email_address %> sent a contact request at <a href="sleepingkingstudios.com/contact.html">sleepingkingstudios.com/contact</a>.
+    </p><% unless @contact.message.blank? %>
+    <%= @contact.html_message.html_safe %><% end %>
   </body>
 </html>

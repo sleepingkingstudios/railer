@@ -55,6 +55,24 @@ RSpec.describe ContactsController, :type => :controller do
     end # describe
 
     describe 'with valid parameters for a contact' do
+      shared_examples 'should send a contact email' do |proc|
+        it 'should send a contact email' do
+          mail = double('mail', :deliver_now => nil)
+
+          expect(ContactMailer).to receive(:contact_email) do |contact|
+            expect(contact.email_address).to be == params[:contact][:email_address]
+
+            SleepingKingStudios::Tools::ObjectTools.apply(self, proc, contact) if proc.is_a?(Proc)
+
+            mail
+          end # expect
+
+          expect(mail).to receive(:deliver_now)
+
+          perform_action
+        end # describe
+      end # shared_examples
+
       let(:contact) { { :email_address => 'user@example.com' } }
       let(:params)  { super().merge :contact => contact }
 
@@ -64,18 +82,63 @@ RSpec.describe ContactsController, :type => :controller do
         expect(errors).to be_empty
       } # end include_examples
 
-      it 'should send a contact email' do
-        mail = double('mail', :deliver_now => nil)
+      include_examples 'should send a contact email'
 
-        expect(ContactMailer).to receive(:contact_email) do |contact|
-          expect(contact.email_address).to be == params[:contact][:email_address]
+      describe 'with an optional name parameter' do
+        let(:contact) { super().merge :name => 'Example User' }
 
-          mail
-        end # expect
+        include_examples 'should respond with', 201, ->() {
+          expect(message).to be == 'Successfully sent contact request'
 
-        expect(mail).to receive(:deliver_now)
+          expect(errors).to be_empty
+        } # end include_examples
 
-        perform_action
+        include_examples 'should send a contact email', ->(contact) {
+          expect(contact.name).to be == params[:contact][:name]
+        } # end include_examples
+      end # describe
+
+      describe 'with plain text as an optional message parameter' do
+        let(:contact) { super().merge :message => 'Your ideas intrigue me, and I wish to subscribe to your newsletter.' }
+
+        include_examples 'should respond with', 201, ->() {
+          expect(message).to be == 'Successfully sent contact request'
+
+          expect(errors).to be_empty
+        } # end include_examples
+
+        include_examples 'should send a contact email', ->(contact) {
+          expect(contact.message).to be == params[:contact][:message]
+        } # end include_examples
+      end # describe
+
+      describe 'with html with a link as an optional message parameter' do
+        let(:contact) { super().merge :message => 'I am a spammer and wish you to buy <a href="www.example.com">V1agra</a>.' }
+
+        include_examples 'should respond with', 201, ->() {
+          expect(message).to be == 'Successfully sent contact request'
+
+          expect(errors).to be_empty
+        } # end include_examples
+
+        include_examples 'should send a contact email', ->(contact) {
+          expect(contact.message).to be == params[:contact][:message]
+        } # end include_examples
+      end # describe
+
+      describe 'with html with a script tag as an optional message parameter' do
+        let(:contact)  { super().merge :message => '<script>maliciousJs()</script><p>I am trying to harvest your email address and/or organs.</p>' }
+        let(:expected) { 'I am trying to harvest your email address and/or organs.' }
+
+        include_examples 'should respond with', 201, ->() {
+          expect(message).to be == 'Successfully sent contact request'
+
+          expect(errors).to be_empty
+        } # end include_examples
+
+        include_examples 'should send a contact email', ->(contact) {
+          expect(contact.message).to be == expected
+        } # end include_examples
       end # describe
     end # describe
   end # describe
