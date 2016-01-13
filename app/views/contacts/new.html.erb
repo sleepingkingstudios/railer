@@ -1,0 +1,41 @@
+<% # app/views/contacts/new.html.erb %>
+
+<h1>Contact</h1>
+
+<%= javascript_include_tag 'contact_form.js' %>
+
+<ul class="alerts">Flash goes here</div>
+
+<%= form_for @contact, :url => contact_path do |form| %>
+  <ul class="errors"></ul>
+
+  <div class="form-group" data-form-group-name="contact[email_address]">
+    <p>
+      <%= form.label :email_address %>
+      <br>
+      <%= form.text_field :email_address %>
+    </p>
+  </div>
+
+  <div class="form-group" data-form-group-name="contact[name]">
+    <p>
+      <%= form.label :name %>
+      <br>
+      <%= form.text_field :name %>
+    </p>
+  </div>
+
+  <div class="form-group" data-form-group-name="contact[message]">
+    <p>
+      <%= form.label :message %>
+      <br>
+      <%= form.text_area :message %>
+    </p>
+  </div>
+
+  <div>
+    <p>
+      <%= form.submit %>
+    </p>
+  </div>
+<% end %>

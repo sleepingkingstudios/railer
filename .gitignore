@@ -17,3 +17,6 @@
 .byebug_history
 /log/*.log
 /tmp
+
+# Ignore install Node.js modules
+/node_modules

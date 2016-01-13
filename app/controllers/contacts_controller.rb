@@ -5,7 +5,11 @@ class ContactsController < ApplicationController
 
   protect_from_forgery :with => :null_session
 
-  before_action :require_contact
+  before_action :require_contact, :only => %i(create)
+
+  def new
+    @contact = Contact.new
+  end # method new
 
   def create
     if contact.valid?
