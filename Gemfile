@@ -25,3 +25,5 @@ group :development do
 end # group
 
 gem 'rails_12factor', :group => :production # Required for Heroku deployment.
+
+ruby '2.3.0'
