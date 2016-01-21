@@ -5,6 +5,17 @@ require 'rails_helper'
 RSpec.describe 'ContactsController routing', :type => :routing do
   let(:controller) { 'contacts' }
 
+  describe 'OPTIONS /contact' do
+    let(:path) { '/contact' }
+
+    it 'routes to ContactsController#create' do
+      expect(:options => "/#{path}").to route_to({
+        :controller  => controller,
+        :action      => 'create'
+      }) # end hash
+    end # it
+  end # describe
+
   describe 'POST /contact' do
     let(:path) { '/contact' }
 
