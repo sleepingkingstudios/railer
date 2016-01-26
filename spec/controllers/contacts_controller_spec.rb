@@ -85,6 +85,8 @@ RSpec.describe ContactsController, :type => :controller do
         expect(contact_errors.fetch 'email_address').to be_a Array
         expect(contact_errors.fetch 'email_address').to contain_exactly 'is not a valid email address'
       } # end include_examples
+
+      include_examples 'should set access control headers'
     end # describe
 
     describe 'with valid parameters for a contact' do

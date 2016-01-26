@@ -54,7 +54,8 @@ class ContactsController < ApplicationController
     ContactMailer.contact_email(contact).deliver_now
 
     true
-  rescue EOFError,
+  rescue ArgumentError,
+    EOFError,
     IOError,
     TimeoutError,
     Errno::ECONNRESET,
