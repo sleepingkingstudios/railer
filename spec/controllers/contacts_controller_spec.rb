@@ -3,6 +3,39 @@
 require 'rails_helper'
 
 RSpec.describe ContactsController, :type => :controller do
+  shared_examples 'should set access control headers' do
+    describe 'with no allowed access control origins' do
+      around(:each) do |example|
+        RSpec::SleepingKingStudios.stub_env({
+          'ACCESS_CONTROL_ALLOW_ORIGIN' => ''
+        }) { example.call }
+      end # around each
+
+      it 'should not set access control headers' do
+        perform_action
+
+        expect(response.headers).not_to have_key 'Access-Control-Allow-Origin'
+      end # it
+    end # describe
+
+    describe 'with allowed access control origins' do
+      around(:each) do |example|
+        RSpec::SleepingKingStudios.stub_env({
+          'ACCESS_CONTROL_ALLOW_ORIGIN' => 'http://example.com'
+        }) { example.call }
+      end # around each
+
+      it 'should set access control headers' do
+        perform_action
+
+        expect(response.headers['Access-Control-Allow-Origin']).to  be == 'http://example.com'
+        expect(response.headers['Access-Control-Allow-Methods']).to be == 'POST, OPTIONS'
+        expect(response.headers['Access-Control-Allow-Headers']).to be == 'Origin, Content-Type, Accept'
+        expect(response.headers['Access-Control-Max-Age']).to       be == 14.days.to_s
+      end # it
+    end # describe
+  end # shared_examples
+
   let(:params)  { {} }
   let(:headers) { { 'Accept' => 'application/json', 'Content-Type' => 'application/json' } }
   let(:json)    { begin JSON.parse(response.body); rescue JSON::ParserError; nil; end }
@@ -52,6 +85,8 @@ RSpec.describe ContactsController, :type => :controller do
         expect(contact_errors.fetch 'email_address').to be_a Array
         expect(contact_errors.fetch 'email_address').to contain_exactly 'is not a valid email address'
       } # end include_examples
+
+      include_examples 'should set access control headers'
     end # describe
 
     describe 'with valid parameters for a contact' do
@@ -83,6 +118,8 @@ RSpec.describe ContactsController, :type => :controller do
       } # end include_examples
 
       include_examples 'should send a contact email'
+
+      include_examples 'should set access control headers'
 
       describe 'with an optional name parameter' do
         let(:contact) { super().merge :name => 'Example User' }
@@ -140,6 +177,14 @@ RSpec.describe ContactsController, :type => :controller do
           expect(contact.message).to be == expected
         } # end include_examples
       end # describe
+    end # describe
+
+    describe 'with an OPTIONS request' do
+      def perform_action
+        process :create, 'OPTIONS', params, headers
+      end # method perform_action
+
+      include_examples 'should set access control headers'
     end # describe
   end # describe
 end # describe

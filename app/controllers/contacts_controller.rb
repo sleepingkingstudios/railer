@@ -5,7 +5,9 @@ class ContactsController < ApplicationController
 
   protect_from_forgery :with => :null_session
 
+  before_action :cors_preflight
   before_action :require_contact
+  after_action  :set_access_control_headers
 
   def create
     if contact.valid?
@@ -22,6 +24,10 @@ class ContactsController < ApplicationController
   end # method create
 
   private
+
+  def access_control_allow_methods
+    @access_control_allow_methods ||= 'POST, OPTIONS'
+  end # method access_control_allow_methods
 
   def contact
     @contact ||= Contact.new(contact_params)
@@ -48,7 +54,8 @@ class ContactsController < ApplicationController
     ContactMailer.contact_email(contact).deliver_now
 
     true
-  rescue EOFError,
+  rescue ArgumentError,
+    EOFError,
     IOError,
     TimeoutError,
     Errno::ECONNRESET,
@@ -74,7 +81,7 @@ class ContactsController < ApplicationController
   def require_contact
     return unless params[:contact].blank?
 
-    errors  = { :contact => { :base => ["Contact can't be blank"] } }
+    errors = { :contact => { :base => ["Contact can't be blank"] } }
     render :status => 400, :json => { :message => failure_message, :errors => errors }
   end # method require_contact
 
